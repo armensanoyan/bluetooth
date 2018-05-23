@@ -1,4 +1,4 @@
-import { Component, ViewChild,Input } from '@angular/core';
+import { Component, ViewChild, Input, NgZone } from '@angular/core';
 import { ConnectionProvider } from '../../providers/connection/connection';
 import { Events } from 'ionic-angular';
 
@@ -13,6 +13,9 @@ export class ChartComponent {
     @Input() concentration
     @ViewChild('lineCanvas') lineCanvas;
     public value
+    public show
+    public RValue
+    public hazar = 20000
  
     lineChart: any;
     XAxis = []
@@ -20,11 +23,12 @@ export class ChartComponent {
     constructor(
         public connectionProvider: ConnectionProvider,
         public events: Events,
+        public ngZone: NgZone
     ) {}
 
     ngOnInit() {
 
-        for(let i=0; i<100; i++) {
+        for(let i=0; i<600; i++) {
             this.XAxis.push(' ')
             this.XPoints.push(0)
         }
@@ -71,9 +75,8 @@ export class ChartComponent {
                             drawOnChartArea:false
                         },
                         ticks: {
-                            max: 255,
-                            min: 0,
-                            maxRotation:5
+                            max: 12,
+                            min: 0.2,
                         }
                     }],
                     xAxes:[{
@@ -92,10 +95,19 @@ export class ChartComponent {
     
 
     react(value='') {
-        if (Number(value) > 150) {
+
+        const gazVoltage = Number(value)/51
+        const gazResistance = ( (800000 * (4.9 - gazVoltage) ) /gazVoltage ) / 100000
+
+        if (gazResistance < 7) {
             this.lineChart.data.datasets[0].backgroundColor = "rgba(255,0,0,0.4)"
             this.lineChart.data.datasets[0].borderColor = "rgba(255,0,0)"
             this.lineChart.data.datasets[0].pointBorderColor = "rgba(255,0,0)"
+            this.lineChart.options.scales.xAxes.gridLines = {
+                display: false,
+                drawBorder:false,
+                drawOnChartArea:false
+            }
         }
         else {
             this.lineChart.data.datasets[0].backgroundColor = "rgba(75,192,192,0.4)"
@@ -104,7 +116,12 @@ export class ChartComponent {
         } 
         
         this.lineChart.data.datasets[0].data.splice(0,1)
-        this.lineChart.data.datasets[0].data.push(Number(value))
+        this.lineChart.data.datasets[0].data.push(gazResistance)
+
+        this.ngZone.run(() => {
+            this.RValue = Number(value)
+            this.show = gazResistance
+        })
         this.lineChart.update()
     }
 }

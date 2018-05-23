@@ -48,8 +48,12 @@ export class HomePage {
                         connectingToDevice.subscribe((success) => {
                             this.ngZone.run(() => {
                                 this.connectToBluetooth = 'Connected'
+
                                 const rowResult = this.connectionProvider.subscribeForRowData()
                                 this.reciveDate(rowResult)
+
+                                const result = this.connectionProvider.subscribeForData()
+                                this.reciveDate(result)
                             })
             
                         }, (failure) => {
@@ -85,6 +89,7 @@ export class HomePage {
             this.createUser(intBuffer[0])
         })
     }
+    
     createUser(value) {
         this.events.publish('value', value);
     }

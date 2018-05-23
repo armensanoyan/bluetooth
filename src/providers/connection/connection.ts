@@ -21,10 +21,10 @@ export class ConnectionProvider {
     }
 
 
-    // subscribeForData() {
-    //     const subscribeForData =this.bluetoothSerial.subscribe('\n')
-    //     return subscribeForData
-    // }
+    subscribeForData() {
+        const subscribeForData =this.bluetoothSerial.subscribe('\n')
+        return subscribeForData
+    }
 
     subscribeForRowData() {
         const subscribeForData =this.bluetoothSerial.subscribeRawData()
